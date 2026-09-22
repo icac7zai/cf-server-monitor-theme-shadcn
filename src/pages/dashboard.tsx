@@ -1,9 +1,10 @@
-import { Megaphone, Search, Settings, X } from 'lucide-react'
+import { Megaphone, Search, Settings, SlidersHorizontal, X } from 'lucide-react'
 import * as React from 'react'
 
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
 import { Footer } from '@/components/footer'
 import { ServerCard } from '@/components/server-card'
+import { DynamicBackground } from '@/components/dynamic-background'
 import { SummaryBar } from '@/components/summary-bar'
 import { ServerTableLazy } from '@/components/server-table-lazy'
 import { SocialLinks } from '@/components/social-links'
@@ -17,6 +18,10 @@ import { useApp } from '@/hooks/use-app'
 import { useServers } from '@/hooks/use-servers'
 import { remainingValueCNY, sumTotalValueCNY } from '@/lib/finance'
 import { isOnline } from '@/lib/format'
+import {
+  getLiquidGlassStyle,
+  LIQUID_GLASS_CLASS,
+} from '@/lib/liquid-glass'
 
 export function Dashboard() {
   const { config, prefs, rates, setPref } = useApp()
@@ -29,6 +34,18 @@ export function Dashboard() {
   const [query, setQuery] = React.useState('')
   const [announcementClosed, setAnnouncementClosed] = React.useState(false)
   const view = prefs.view
+  const liquidGlassOptions = {
+    opacity: prefs.cardOpacity,
+    blur: prefs.cardBlur,
+    saturation: prefs.cardSaturation,
+    highlight: prefs.cardHighlight,
+    borderOpacity: prefs.cardBorderOpacity,
+  }
+
+  const liquidGlassStyle =
+    prefs.cardStyle === 'liquid'
+      ? getLiquidGlassStyle(liquidGlassOptions)
+      : undefined
   const changeView = (next: ViewMode) => setPref('view', next)
 
   const sorted = React.useMemo(
@@ -123,8 +140,27 @@ export function Dashboard() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-xl border bg-card px-4 py-3 shadow-xs">
+      <>
+          <DynamicBackground
+        effect={prefs.backgroundEffect}
+        sakuraCount={prefs.sakuraCount}
+        sakuraSpeed={prefs.sakuraSpeed}
+        sakuraOpacity={prefs.sakuraOpacity}
+      />
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <header
+        style={liquidGlassStyle}
+        className={`
+          mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3
+          rounded-xl border px-4 py-3 shadow-xs
+          ${
+            prefs.cardStyle === 'liquid'
+              ? LIQUID_GLASS_CLASS
+              : 'bg-card'
+          }
+        `}
+      >
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -150,7 +186,21 @@ export function Dashboard() {
         <div className="ml-auto flex items-center gap-2">
           <SocialLinks />
           <Button variant="outline" size="icon" asChild>
-            <a href="/admin#admin" aria-label="管理后台" title="管理后台">
+            <a
+              href="#/settings/appearance"
+              aria-label="外观设置"
+              title="外观设置"
+            >
+              <SlidersHorizontal className="size-4" />
+            </a>
+          </Button>         
+
+          <Button variant="outline" size="icon" asChild>
+            <a
+              href="/admin#admin"
+              aria-label="管理后台"
+              title="管理后台"
+            >
               <Settings className="size-4" />
             </a>
           </Button>
@@ -198,17 +248,24 @@ export function Dashboard() {
             value={status}
             onValueChange={(v) => setStatus(v as 'all' | 'online' | 'offline')}
           >
-            <TabsList>
-              <TabsTrigger value="all" className="flex-none px-3">
-                全部
-              </TabsTrigger>
-              <TabsTrigger value="online" className="flex-none px-3">
-                在线
-              </TabsTrigger>
-              <TabsTrigger value="offline" className="flex-none px-3">
-                离线
-              </TabsTrigger>
-            </TabsList>
+            <TabsList
+              className={
+                prefs.cardStyle === 'liquid'
+                  ? LIQUID_GLASS_CLASS
+                  : undefined
+              }
+              style={liquidGlassStyle}
+            >
+  <TabsTrigger value="all" className="flex-none px-3">
+    全部
+  </TabsTrigger>
+  <TabsTrigger value="online" className="flex-none px-3">
+    在线
+  </TabsTrigger>
+  <TabsTrigger value="offline" className="flex-none px-3">
+    离线
+  </TabsTrigger>
+</TabsList>
           </Tabs>
           {loading && regions.length === 0 ? (
             <div className="flex gap-2">
@@ -218,7 +275,14 @@ export function Dashboard() {
             </div>
           ) : regions.length > 1 ? (
             <Tabs value={region} onValueChange={setRegion}>
-              <TabsList className="h-auto flex-wrap">
+              <TabsList
+                className={`h-auto flex-wrap ${
+                  prefs.cardStyle === 'liquid'
+                    ? LIQUID_GLASS_CLASS
+                    : ''
+                }`}
+                style={liquidGlassStyle}
+              >
                 <TabsTrigger value="all" className="flex-none px-3">
                   全部
                 </TabsTrigger>
@@ -272,6 +336,13 @@ export function Dashboard() {
               server={server}
               variant={view === 'ring' ? 'ring' : 'grid'}
               cardStyle={prefs.cardStyle}
+
+              liquidOpacity={prefs.cardOpacity}
+              liquidBlur={prefs.cardBlur}
+              liquidSaturation={prefs.cardSaturation}
+              liquidHighlight={prefs.cardHighlight}
+              liquidBorderOpacity={prefs.cardBorderOpacity}
+
               showPrice={sysConfig?.show_price !== false}
               showExpire={sysConfig?.show_expire !== false}
               showValue={showBilling}
@@ -290,7 +361,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <Footer
+            <Footer
         version={config?.version}
         loading={!config}
         text={
@@ -300,5 +371,6 @@ export function Dashboard() {
         }
       />
     </div>
-  )
+  </>
+)
 }

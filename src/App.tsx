@@ -10,6 +10,7 @@ import {
 import { DetailSkeleton } from '@/components/detail-skeleton'
 import { AppProvider } from '@/hooks/use-app'
 import { Dashboard } from '@/pages/dashboard'
+import { AppearanceSettings } from '@/pages/appearance-settings'
 
 const ServerDetail = lazy(() =>
   import('@/pages/server-detail').then((m) => ({ default: m.ServerDetail }))
@@ -64,6 +65,7 @@ export default function App() {
         <div className="min-h-svh">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/settings/appearance" element={<AppearanceSettings />} />
             <Route
               path="/server/:id"
               element={

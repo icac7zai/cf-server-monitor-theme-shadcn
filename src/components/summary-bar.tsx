@@ -7,6 +7,11 @@ import type { ConnectionState } from '@/hooks/use-servers'
 import { formatCNY } from '@/lib/finance'
 import { formatBytes, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { useApp } from '@/hooks/use-app'
+import {
+  getLiquidGlassStyle,
+  LIQUID_GLASS_CLASS,
+} from '@/lib/liquid-glass'
 
 function Item({
   label,
@@ -54,9 +59,34 @@ export function SummaryBar({
   connection: ConnectionState
   loading?: boolean
 }) {
+  const { prefs } = useApp()
+
+  const liquidGlassOptions = {
+    opacity: prefs.cardOpacity,
+    blur: prefs.cardBlur,
+    saturation: prefs.cardSaturation,
+    highlight: prefs.cardHighlight,
+    borderOpacity: prefs.cardBorderOpacity,
+  }
+
+  const liquidGlassStyle =
+    prefs.cardStyle === 'liquid'
+      ? getLiquidGlassStyle(liquidGlassOptions)
+      : undefined
+
+  const liquidGlassClass =
+    prefs.cardStyle === 'liquid'
+      ? LIQUID_GLASS_CLASS
+      : undefined
   if (loading) {
     return (
-      <Card className="gap-0 py-0">
+      <Card
+        style={liquidGlassStyle}
+        className={cn(
+          'gap-0 py-0',
+          liquidGlassClass
+        )}
+      >
         <CardContent className={GRID}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -81,7 +111,13 @@ export function SummaryBar({
   }[connection]
 
   return (
-    <Card className="gap-0 py-0">
+    <Card
+      style={liquidGlassStyle}
+      className={cn(
+        'gap-0 py-0',
+        liquidGlassClass
+      )}
+    >
       <CardContent className={GRID}>
         <Item label="在线">
           <NumberTicker value={online} />

@@ -73,6 +73,11 @@ function ServerCardBase({
   showThreeNet = false,
   variant = 'grid',
   cardStyle = 'default',
+  liquidOpacity = 0.08,
+  liquidBlur = 24,
+  liquidSaturation = 150,
+  liquidHighlight = 0.16,
+  liquidBorderOpacity = 0.2,
   netNames = { ct: '电信', cu: '联通', cm: '移动', bd: 'BGP' },
 }: {
   server: Server
@@ -83,7 +88,12 @@ function ServerCardBase({
   showTraffic?: boolean
   showThreeNet?: boolean
   variant?: 'grid' | 'ring'
-  cardStyle?: 'default' | 'shine' | 'neon'
+  cardStyle?: 'default' | 'shine' | 'neon' | 'liquid'
+  liquidOpacity?: number
+  liquidBlur?: number
+  liquidSaturation?: number
+  liquidHighlight?: number
+  liquidBorderOpacity?: number
   netNames?: { ct: string; cu: string; cm: string; bd: string }
 }) {
   const online = isOnline(server)
@@ -114,22 +124,65 @@ function ServerCardBase({
 
   const shine = cardStyle === 'shine'
   const neon = cardStyle === 'neon'
+  const liquid = cardStyle === 'liquid'
 
   const card = (
-      <Card
-        className={cn(
-          'h-full gap-4 py-5 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-md',
-          shine && 'relative overflow-hidden',
-          neon && 'border-0 shadow-none',
-          !online && 'opacity-70'
-        )}
-      >
+            <Card
+  style={
+    liquid
+      ? ({
+          '--liquid-highlight': liquidHighlight,
+          '--liquid-border-opacity': liquidBorderOpacity,
+          backdropFilter: `blur(${liquidBlur}px) saturate(${liquidSaturation}%)`,
+          WebkitBackdropFilter: `blur(${liquidBlur}px) saturate(${liquidSaturation}%)`,
+          backgroundColor: `rgba(255, 255, 255, ${liquidOpacity})`,
+          borderColor: `rgba(0, 0, 0, ${liquidBorderOpacity})`,
+        } as React.CSSProperties)
+      : undefined
+  }
+  className={cn(
+    'h-full gap-4 py-5',
+    'transition-all duration-300 group-hover:-translate-y-0.5',
+    shine && 'relative overflow-hidden',
+    neon && 'border-0 shadow-none',
+    liquid &&
+      'relative overflow-hidden border shadow-[0_8px_32px_rgba(0,0,0,0.10)]',
+    liquid &&
+      'dark:border-white/10',
+    liquid &&
+      'before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-black/10 before:to-transparent dark:before:via-white/60',
+    liquid &&
+      'after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.16),transparent_32%)]',
+    !online && 'opacity-70'
+  )}
+>
         {shine && (
           <ShineBorder
             shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']}
             duration={10}
             borderWidth={1.5}
           />
+        )}
+        {liquid && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+          >
+            {/* 柔和彩色折射 */}
+            <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-cyan-400/[0.10] blur-3xl dark:bg-cyan-300/[0.08]" />
+
+            <div className="absolute -right-10 top-1/3 h-36 w-36 rounded-full bg-violet-400/[0.10] blur-3xl dark:bg-violet-300/[0.08]" />
+
+            <div className="absolute bottom-[-30px] left-1/3 h-32 w-32 rounded-full bg-blue-400/[0.08] blur-3xl dark:bg-blue-300/[0.06]" />
+
+            {/* 玻璃高光 */}
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-white/[var(--liquid-highlight)] via-transparent to-white/[0.04] dark:from-white/[var(--liquid-highlight)] dark:to-white/[0.02]"
+            />
+
+            {/* 动态光线 */}
+            <div className="absolute -left-1/3 -top-1/2 h-full w-2/3 rotate-[-18deg] bg-gradient-to-r from-transparent via-white/[0.10] to-transparent blur-2xl transition-transform duration-700 group-hover:translate-x-[180%]" />
+          </div>
         )}
         <CardHeader className="px-5 pb-0">
           <div className="flex items-start justify-between gap-3">
