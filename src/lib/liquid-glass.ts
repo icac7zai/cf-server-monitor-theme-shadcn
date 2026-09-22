@@ -18,11 +18,12 @@ export function getLiquidGlassStyle(
     backdropFilter: `blur(${options.blur}px) saturate(${options.saturation}%)`,
     WebkitBackdropFilter: `blur(${options.blur}px) saturate(${options.saturation}%)`,
 
-    backgroundColor: `color-mix(in oklab, white ${
-      Math.round(options.opacity * 100)
+    // 更透明的玻璃底色
+    backgroundColor: `color-mix(in srgb, white ${
+      Math.round(options.opacity * 70)
     }%, transparent)`,
 
-    borderColor: `color-mix(in oklab, var(--foreground) ${
+    borderColor: `color-mix(in srgb, var(--foreground) ${
       Math.round(options.borderOpacity * 100)
     }%, transparent)`,
   } as React.CSSProperties

@@ -73,7 +73,7 @@ export function AppearanceSettings() {
         sakuraOpacity={prefs.sakuraOpacity}
       />
 
-      <div className="relative z-10 min-h-screen bg-background">
+      <div className="relative z-10 min-h-screen">
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
           {/* 顶部 Header */}
           <header

@@ -135,7 +135,7 @@ function ServerCardBase({
           '--liquid-border-opacity': liquidBorderOpacity,
           backdropFilter: `blur(${liquidBlur}px) saturate(${liquidSaturation}%)`,
           WebkitBackdropFilter: `blur(${liquidBlur}px) saturate(${liquidSaturation}%)`,
-          backgroundColor: `rgba(255, 255, 255, ${liquidOpacity})`,
+          backgroundColor: `rgba(255, 255, 255, ${liquidOpacity * 0.35})`,
           borderColor: `rgba(0, 0, 0, ${liquidBorderOpacity})`,
         } as React.CSSProperties)
       : undefined
@@ -177,7 +177,7 @@ function ServerCardBase({
 
             {/* 玻璃高光 */}
             <div
-              className="absolute inset-0 bg-gradient-to-br from-white/[var(--liquid-highlight)] via-transparent to-white/[0.04] dark:from-white/[var(--liquid-highlight)] dark:to-white/[0.02]"
+              className="absolute inset-0 bg-gradient-to-br from-white/[calc(var(--liquid-highlight)*0.35)] via-transparent to-white/[0.02] dark:from-white/[calc(var(--liquid-highlight)*0.35)] dark:to-white/[0.01]"
             />
 
             {/* 动态光线 */}
